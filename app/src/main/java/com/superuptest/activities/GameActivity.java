@@ -1,8 +1,8 @@
 package com.superuptest.activities;
 
-import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
@@ -10,16 +10,18 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.superuptest.R;
 import com.superuptest.views.WaveView;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements WaveView.WaveViewCallbacks {
 
     private static final String TAG = "GameActivity";
 
+    private TextView tvCount;
     private ConstraintLayout mContainer;
-
+    private int mCount = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +30,7 @@ public class GameActivity extends AppCompatActivity {
         mContainer = findViewById(R.id.cc_container);
         mContainer.setDrawingCacheEnabled(true);
 
-
+        tvCount = findViewById(R.id.tv_count);
         /*
         * just fot testing
         * */
@@ -36,10 +38,13 @@ public class GameActivity extends AppCompatActivity {
 
         final WaveView wave = new WaveView(this);
         wave.setLayoutParams(new FrameLayout.LayoutParams(10,10));
+        wave.setDeviceScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
         wave.getLayoutParams().width =10;
         wave.getLayoutParams().height = 10;
 
-        mContainer.addView(wave);
+        mContainer.addView(wave,1);
+
+        //Log.d(TAG, "onCreate: width"+getWindowManager().getDefaultDisplay().getWidth());
 
         ConstraintSet c = new ConstraintSet();
         c.clone(mContainer);
@@ -49,18 +54,84 @@ public class GameActivity extends AppCompatActivity {
         c.connect(wave.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);        c.applyTo(mContainer);
         c.applyTo(mContainer);
 
-        ValueAnimator animator = ValueAnimator.ofInt(0,800);
-        animator.setDuration(3000);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int newRadius = (int) animation.getAnimatedValue();
-                //Log.d(TAG, "onAnimationUpdate: " + newRadius);
-                wave.getLayoutParams().width = (int) animation.getAnimatedValue();
-                wave.getLayoutParams().height = (int) animation.getAnimatedValue();
-                wave.requestLayout();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                final WaveView wave2 = new WaveView(GameActivity.this);
+                wave2.setLayoutParams(new FrameLayout.LayoutParams(10,10));
+                wave2.setDeviceScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
+                wave2.getLayoutParams().width =10;
+                wave2.getLayoutParams().height = 10;
+
+                mContainer.addView(wave2,2);
+
+                //Log.d(TAG, "onCreate: width"+getWindowManager().getDefaultDisplay().getWidth());
+
+                ConstraintSet c = new ConstraintSet();
+                c.clone(mContainer);
+                c.connect(wave2.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                c.connect(wave2.getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
+                c.connect(wave2.getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0);
+                c.connect(wave2.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);        c.applyTo(mContainer);
+                c.applyTo(mContainer);
+
+
             }
-        });
-        animator.start();
+        },1000);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                final WaveView wave2 = new WaveView(GameActivity.this);
+                wave2.setLayoutParams(new FrameLayout.LayoutParams(10,10));
+                wave2.setDeviceScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
+                wave2.getLayoutParams().width =10;
+                wave2.getLayoutParams().height = 10;
+
+                mContainer.addView(wave2,2);
+
+                //Log.d(TAG, "onCreate: width"+getWindowManager().getDefaultDisplay().getWidth());
+
+                ConstraintSet c = new ConstraintSet();
+                c.clone(mContainer);
+                c.connect(wave2.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                c.connect(wave2.getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
+                c.connect(wave2.getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0);
+                c.connect(wave2.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);        c.applyTo(mContainer);
+                c.applyTo(mContainer);
+
+
+            }
+        },2000);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                final WaveView wave2 = new WaveView(GameActivity.this);
+                wave2.setLayoutParams(new FrameLayout.LayoutParams(10,10));
+                wave2.setDeviceScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
+                wave2.getLayoutParams().width =10;
+                wave2.getLayoutParams().height = 10;
+
+                mContainer.addView(wave2,2);
+
+                //Log.d(TAG, "onCreate: width"+getWindowManager().getDefaultDisplay().getWidth());
+
+                ConstraintSet c = new ConstraintSet();
+                c.clone(mContainer);
+                c.connect(wave2.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                c.connect(wave2.getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
+                c.connect(wave2.getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0);
+                c.connect(wave2.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);        c.applyTo(mContainer);
+                c.applyTo(mContainer);
+
+
+            }
+        },3000);
+
 
         mContainer.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -84,4 +155,15 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onWaveReachedBorder(WaveView wave) {
+        Log.d(TAG, "onWaveReachedBorder: " + mContainer.getChildCount());
+
+        mContainer.removeView(wave);
+
+        mCount++;
+
+        if (tvCount!=null)
+            tvCount.setText("Count: " + mCount);
+    }
 }
