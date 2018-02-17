@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == btStartGame.getId()){
+
+            overridePendingTransition(0,0);
             startActivity(new Intent(this,GameActivity.class));
         }
     }

@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import java.util.Random;
+
 
 /**
  * This class represent a wave.
@@ -20,6 +22,9 @@ import android.view.animation.LinearInterpolator;
 
 public class WaveView extends View {
 
+    /**
+     * Tha logging tag of this Class
+     * */
     private static final String TAG = "WaveView";
 
     /**
@@ -30,7 +35,7 @@ public class WaveView extends View {
     /**
      *Radius of the hole.
      * */
-    private static final int HOLE_RADIUS = 50;
+    private static final int HOLE_RADIUS = 60;
 
     /**
      *Paints stroke width.
@@ -38,9 +43,9 @@ public class WaveView extends View {
     private static final int STROKE_WIDTH = 15;
 
     /**
-     *The duration of animation.
+     *The duration of animation in millisecond.
      * */
-    private static final int ANIM_DURATION = 5000;
+    private static final int ANIM_DURATION = 10000;
 
     /**
      *Device screen width used to check when the wave reached the border,
@@ -53,11 +58,11 @@ public class WaveView extends View {
      * */
     private boolean isAnimStarted = false;
 
-
-    private Paint mCirclePaint;
-    private Paint mHolePaint;
-    private PorterDuffXfermode mDuffXfermode;
-    private ValueAnimator animator ;
+    /**
+    * Every item of the array represent a hole angel, angel will used to calculate x,y
+    * coordinates for each hole on the circle.
+    * */
+    private int[] angelsArr;
 
     /**
      * Interface instance to send callbacks to Activity.
@@ -71,13 +76,26 @@ public class WaveView extends View {
     public interface WaveViewCallbacks {
 
         /**
-         * Called when the wave reached the border.
+         * Called when the wave reached the game border.
          * @param waveView provide a instance of itself, to let the layout container in the
          * Activity to remove the View.
          * */
         void onWaveReachedBorder(WaveView waveView);
     }
 
+
+    private Paint mCirclePaint;
+    private Paint mHolePaint;
+    private ValueAnimator animator ;
+    private Random mRand = new Random();
+
+
+
+    /**
+     * Default constructor
+     * @param context The Context the view is running in (Activity)
+     * @throws IllegalStateException if the Activity not implement WaveViewCallbacks interface
+     * */
     public WaveView(Context context) {
         super(context);
 
@@ -93,31 +111,47 @@ public class WaveView extends View {
 
 
     /**
-     * initialize Paints and sets View characteristics.
+     * initialize Paints, holes, angels and sets View characteristics.
     * */
     private void init(){
         //get paints
         mCirclePaint = getCirclePaint();
         mHolePaint = getHolePaint();
 
-        //used to erase part of the circle to create hole
-        mDuffXfermode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-
         setDrawingCacheEnabled(true);
 
-        //add this line to force PorterDuff.Mode.CLEAR work
+        //this line used to force PorterDuff.Mode.CLEAR work and for smooth animations
         setLayerType(View.LAYER_TYPE_HARDWARE,null);
+
+        setupAngelsForHoles();
 
     }
 
+    /**
+     * Initialize angelsArr that will store random non-repeatable angels for each hole
+     * angelsArr size is the number of holes generated randomly
+     * */
+    private void setupAngelsForHoles() {
+        angelsArr = new int[generateNumOfHoles()];
 
+        for (int i = 0; i < angelsArr.length; i++) {
+            angelsArr[i] = generateRandomAngel();
+
+            while (i > 0 && angelsArr[i]== angelsArr[i-1]){
+                angelsArr[i] = generateRandomAngel();
+            }
+        }
+    }
+
+    /**
+     * Override onMeasure and setup ValueAnimator related to screen width and start animation
+     * @throws IllegalStateException if the screen width not defined (-1)
+     * */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         if (deviceScreenWidth != -1){
-
-            Log.d(TAG, "onMeasure: "+deviceScreenWidth);
 
             animator = ValueAnimator.ofInt(10,deviceScreenWidth);
 
@@ -130,6 +164,10 @@ public class WaveView extends View {
 
     }
 
+
+    /**
+     * Override onDraw and draw the objects
+     * */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -137,8 +175,6 @@ public class WaveView extends View {
 
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-
-        Log.d(TAG, "onDraw: "+width);
 
 
         //Draws the main circle
@@ -148,17 +184,18 @@ public class WaveView extends View {
                 ,(float)(width*0.5)-PADDING,
                 mCirclePaint);
 
-        //get coordinates on the circle to place hole
-        float[] floats = getPointOnCircle(width, height, (float) (width * 0.5));
+        //Draw the holes
+        for (int i = 0; i< angelsArr.length; i++) {
 
-        //set paints clear mode
-        mHolePaint.setXfermode(mDuffXfermode);
+            Log.d(TAG, "onDraw: " + angelsArr[i]);
+            //compute coordinates on the circle to place a hole
+            float[] floats = getPointOnCircle(width, height, width/2, angelsArr[i]);
 
-        //create new circle that erase part of the main circle
-        canvas.drawCircle(
-                floats[0],
-                floats[1],
-                HOLE_RADIUS, mHolePaint);
+            canvas.drawCircle(
+                    floats[0],//x
+                    floats[1],//y
+                    HOLE_RADIUS, mHolePaint);
+        }
     }
 
     /**
@@ -168,12 +205,10 @@ public class WaveView extends View {
     private ValueAnimator.AnimatorUpdateListener getAnimUpdateListener() {
         return new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
-
                     //increase the view width and height
                     getLayoutParams().width = (int) animation.getAnimatedValue();
                     getLayoutParams().height = (int) animation.getAnimatedValue();
                     requestLayout();
-
             }
         };
     }
@@ -218,11 +253,11 @@ public class WaveView extends View {
      * that represent point on the circle,
      * this coordinates uses to place a hole
      * */
-    private float[] getPointOnCircle(int mWidth, int mHeight, final float radius) {
+    private float[] getPointOnCircle(int mWidth, int mHeight, final float radius, int angel) {
         float[] result = new float[2];
 
-        result[0] = (float) ((radius-PADDING) * Math.cos(100)) + (mWidth / 2);
-        result[1] = (float) ((radius-PADDING) * Math.sin(100)) + (mHeight / 2);
+        result[0] = (float) ((radius-PADDING) * Math.cos(angel)) + (mWidth / 2);
+        result[1] = (float) ((radius-PADDING) * Math.sin(angel)) + (mHeight / 2);
 
         return result;
     }
@@ -234,7 +269,7 @@ public class WaveView extends View {
     * */
     private Paint getCirclePaint(){
        Paint paint =  new Paint();
-       paint.setColor(Color.BLACK);
+       paint.setColor(Color.DKGRAY);
        paint.setStrokeWidth(STROKE_WIDTH);
        paint.setStyle(Paint.Style.STROKE);
        return paint;
@@ -245,10 +280,15 @@ public class WaveView extends View {
      * @return Paint that uses to draw hole in circle
      * */
     private Paint getHolePaint(){
-        Paint paint =  new Paint();
-        paint.setColor(Color.WHITE);
+
+        //mDuffXfermode to erase part of the circle to create hole
+        PorterDuffXfermode mDuffXfermode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+
+        Paint paint = new Paint();
         paint.setStrokeWidth(STROKE_WIDTH);
         paint.setStyle(Paint.Style.FILL);
+        paint.setXfermode(mDuffXfermode);
+
         return paint;
     }
 
@@ -266,10 +306,36 @@ public class WaveView extends View {
     }
 
     /**
-     * Set device screen width
+     * Setter for device screen width
      * @param width is screen width
      * */
     public void setDeviceScreenWidth(int width) {
         this.deviceScreenWidth = width;
+    }
+
+    /**
+     * Return random number from 1 to 3, represent number of holes in WaveView
+     * @return random number from 1 to 3, represent number of holes in the WaveView
+     */
+    private int generateNumOfHoles(){
+
+        int low = 1;
+        int high = 4;
+
+        return mRand.nextInt(high-low) + low;
+    }
+
+
+    /**
+    * Return random number from (1 to 36) * 10 that represent angel
+    * @return random number from (1 to 36) * 10 that represent angel
+    */
+    private int generateRandomAngel(){
+
+        int low = 1;
+        int high = 37;
+        int result = mRand.nextInt(high-low) + low;
+
+        return result*10;
     }
 }
