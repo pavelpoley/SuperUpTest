@@ -22,7 +22,7 @@ import java.util.Random;
 public class WaveView extends View {
 
     /**
-     * Tha logging tag of this Class
+     * The logging tag of this Class
      * */
     private static final String TAG = "WaveView";
 
@@ -44,12 +44,12 @@ public class WaveView extends View {
 
     /**
      *Device screen width used to check when the wave reached the border,
-     *since the outer circle border width is match to the screen width.
+     *since the outer circle width is match to the screen width.
      * */
     private int deviceScreenWidth = -1;
 
     /**
-     * Flag that uses to start animation only once.
+     * Flag that help us to start animation only once.
      * */
     private boolean isAnimStarted = false;
 
@@ -143,11 +143,11 @@ public class WaveView extends View {
         holeAngelsArr = new int[numOfHoles];
 
         for (int i = 0; i < holeAngelsArr.length; i++) {
-            holeAngelsArr[i] = generateRandomAngel();
+            holeAngelsArr[i] = getRandAngel();
 
             //while loop to generate new number if the number already exist
             while (i > 0 && holeAngelsArr[i]== holeAngelsArr[i-1]){
-                holeAngelsArr[i] = generateRandomAngel();
+                holeAngelsArr[i] = getRandAngel();
             }
         }
     }
@@ -160,7 +160,7 @@ public class WaveView extends View {
         holesSizeArr = new int[numOfHoles];
 
         for (int i = 0; i < holesSizeArr.length; i++) {
-            holesSizeArr[i] = generateHoleSize();
+            holesSizeArr[i] = getRandHoleSize();
         }
     }
 
@@ -219,6 +219,10 @@ public class WaveView extends View {
                     floats[0],//x
                     floats[1],//y
                     holesSizeArr[i], mHolePaint);
+
+            //because we using animation we must call invalidate in onDraw()
+            //otherwise we won't able to getPixel() correctly
+            invalidate();
         }
     }
 
@@ -359,7 +363,7 @@ public class WaveView extends View {
     * @return random number from (1 to 36) * 10 that represent angel from 10 to 360 degrees,
     * jumps by 10.
     */
-    private int generateRandomAngel(){
+    private int getRandAngel(){
 
         int low = 1;
         int high = 37;
@@ -370,15 +374,17 @@ public class WaveView extends View {
 
 
     /**
-     * Return random number from 50 to 70 that represent hole size.
-     * @return random number from 50 to 70 that represent hole size
+     * Return random number from 50 to 100 that represent hole size.
+     * @return random number from 50 to 100 that represent hole size
      */
-    private int generateHoleSize(){
+    private int getRandHoleSize(){
 
         int low = 5;
-        int high = 8;
+        int high = 11;
 
         int result = mRand.nextInt(high-low) + low;
         return result*10;
     }
+
+
 }
