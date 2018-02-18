@@ -59,10 +59,17 @@ public class GameActivity extends AppCompatActivity implements
     }
 
     private void checkColor() {
-        int color = mContainer.getDrawingCache().getPixel(mLastX, mLastY);
 
-        if (color != COLOR_WHITE){
-            gameOver();
+        try {
+
+            int color = mContainer.getDrawingCache().getPixel(mLastX, mLastY);
+
+            if (color != COLOR_WHITE){
+                gameOver();
+            }
+
+        } catch (Exception e) {
+            Log.w(TAG, "checkColor: outside of view");
         }
     }
 
