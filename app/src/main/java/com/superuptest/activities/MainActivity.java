@@ -9,6 +9,10 @@ import android.widget.Button;
 import com.superuptest.R;
 import com.superuptest.activities.GameActivity;
 
+
+/**
+ * MainActivity include only start game button.
+ * */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button btStartGame;
