@@ -65,11 +65,24 @@ public class WaveView extends View {
      * */
     private int[] holesSizeArr;
 
-
-    //Other properties
+    /**
+     * Paint to draw main circle.
+     * */
     private Paint mCirclePaint;
+
+    /**
+     * Paint to draw holes.
+     * */
     private Paint mHolePaint;
+
+    /**
+     * ValueAnimator instance.
+     * */
     private ValueAnimator mAnimator;
+
+    /**
+     * Random instance.
+     * */
     private Random mRand = new Random();
 
 

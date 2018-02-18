@@ -5,59 +5,58 @@ import android.support.annotation.NonNull;
 
 /**
  * Created by pavel on 18/02/2018.
- * This class is helper class to generate pulse every X time.
- * The class uses Handler.postDelayed() method and calls itself each time, to generate
- * callback every X time.
+ * This class similar to PulseGenerator but with more faster rate.
  */
 
-public class PulseGenerator {
+public class SamplingGenerator {
 
     /**
      * The logging tag of this Class.
      * */
-    private static final String TAG = "PulseGenerator";
+    private static final String TAG = "SamplingGenerator";
 
     /**
-     * Constant that define the interval time.
+     * Constant that define the onSample rate in milliseconds.
+     * 0 = most fastest.
      * */
-    private static final int INTERVAL = 3000;
+    private static final int SAMPLE_RATE = 0;
 
     /**
      * Handler instance.
-    * */
+     * */
     private Handler mHandler = new Handler();
 
     /**
      * Interface instance used to send callbacks to Activity.
      * */
-    private PulseGeneratorCallbacks mCallbacks;
+    private SamplingGeneratorCallbacks mCallbacks;
 
     /**
      * Interface to send callbacks to activity.
      * */
-    public interface PulseGeneratorCallbacks{
-        void onPulse();
+    public interface SamplingGeneratorCallbacks{
+        void onSample();
     }
 
     /**
      * Constructor
-     * @param activity The Activity must implement PulseGeneratorCallbacks
+     * @param activity The Activity must implement SamplingGeneratorCallbacks
      * that listen to callbacks.
      * */
-    public PulseGenerator(PulseGeneratorCallbacks activity) {
+    public SamplingGenerator(SamplingGeneratorCallbacks activity) {
         this.mCallbacks = activity;
     }
 
 
     /**
-     * Start pulsing.
+     * Start sampling.
      * */
     public void start(){
-        mHandler.postDelayed(getRunnable(),INTERVAL);
+        mHandler.postDelayed(getRunnable(), SAMPLE_RATE);
     }
 
     /**
-     *Stop pulsing.
+     *Stop sampling.
      * */
     public void stop(){
         mHandler.removeCallbacksAndMessages(null);
@@ -77,10 +76,10 @@ public class PulseGenerator {
                 if (mHandler!=null){
 
                     //callback to activity
-                    mCallbacks.onPulse();
+                    mCallbacks.onSample();
 
                     //call postDelayed with this Runnable again
-                    mHandler.postDelayed(this,INTERVAL);
+                    mHandler.postDelayed(this, SAMPLE_RATE);
 
                 }
             }

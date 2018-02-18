@@ -1,8 +1,6 @@
 package com.superuptest.activities;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
@@ -15,53 +13,57 @@ import android.widget.TextView;
 
 import com.superuptest.R;
 import com.superuptest.game.PulseGenerator;
+import com.superuptest.game.SamplingGenerator;
 import com.superuptest.views.WaveView;
 
-public class GameActivity extends AppCompatActivity implements WaveView.WaveViewCallbacks, PulseGenerator.PulseGeneratorCallbacks {
+public class GameActivity extends AppCompatActivity implements
+        WaveView.WaveViewCallbacks,
+        PulseGenerator.PulseGeneratorCallbacks,
+        View.OnTouchListener, SamplingGenerator.SamplingGeneratorCallbacks {
 
     private static final String TAG = "GameActivity";
 
     private TextView tvCount;
     private ConstraintLayout mContainer;
     private int mCount = 0;
-    private PulseGenerator pulseGenerator;
+
+    private PulseGenerator mPulseGenerator;
+    private SamplingGenerator mSampleGenerator;
+
+    private int mLastX = 0;
+    private int mLastY = 0;
+
+    private static final int COLOR_WHITE = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        //keep the screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mContainer = findViewById(R.id.cc_container);
         tvCount = findViewById(R.id.tv_count);
 
         mContainer.setDrawingCacheEnabled(true);
+        mContainer.setOnTouchListener(this);
 
-        pulseGenerator = new PulseGenerator(this);
+        mPulseGenerator = new PulseGenerator(this);
+        mSampleGenerator = new SamplingGenerator(this);
 
-        pulseGenerator.start();
+        mPulseGenerator.start();
+        mSampleGenerator.start();
 
+    }
 
+    private void checkColor() {
+        int color = mContainer.getDrawingCache().getPixel(mLastX, mLastY);
 
-        mContainer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                int x = (int)event.getX();
-                int y = (int)event.getY();
-
-
-                // x and y are the location of the touch event in Bitmap space
-                int color = mContainer.getDrawingCache().getPixel(x,y);
-
-                //int alpha = Color.alpha(color);
-                //boolean isTransparent = (alpha==0);
-
-                Log.d(TAG, "onTouchEvent: " + color);
-                return true;
-            }
-        });
+        if (color != COLOR_WHITE){
+            gameOver();
+        }
     }
 
     @Override
@@ -69,13 +71,11 @@ public class GameActivity extends AppCompatActivity implements WaveView.WaveView
         mCount++;
 
         if (tvCount!=null)
-            tvCount.setText("Count: " + mCount);
+            tvCount.setText("Points: " + mCount);
 
         if (mContainer!=null) {
             mContainer.removeView(wave);
         }
-
-
     }
 
     @Override
@@ -103,10 +103,37 @@ public class GameActivity extends AppCompatActivity implements WaveView.WaveView
 
     }
 
+
+    private void gameOver(){
+        mPulseGenerator.stop();
+        mSampleGenerator.stop();
+        finish();
+    }
+
     @Override
     protected void onDestroy() {
-        Log.d(TAG, "onDestroy: ");
         super.onDestroy();
-        pulseGenerator.stop();
+        mPulseGenerator.stop();
+        mSampleGenerator.stop();
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+
+        mLastX = (int)event.getX();
+        mLastY = (int)event.getY();
+
+
+        if (event.getAction() == MotionEvent.ACTION_UP){
+            //user untouched the screen end game
+            gameOver();
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onSample() {
+        checkColor();
     }
 }
