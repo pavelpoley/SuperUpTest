@@ -92,7 +92,6 @@ public class WaveView extends View {
     private final int numOfHoles = generateNumOfHoles();
 
 
-
     /**
      * Interface instance used to send callbacks to Activity.
      * */
@@ -189,6 +188,7 @@ public class WaveView extends View {
 
         if (deviceScreenWidth != -1){
 
+            //define animation from 10 to screen width
             mAnimator = ValueAnimator.ofInt(10,deviceScreenWidth);
 
             //start animation
@@ -210,19 +210,19 @@ public class WaveView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        //get width and height sizes
+        //get width and height
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
 
-        //Draws the main circle
+        //Draw main circle
         canvas.drawCircle(
                 (float)(width*0.5),
                 (float)(height*0.5)
                 ,(float)(width*0.5)-PADDING,
                 mCirclePaint);
 
-        //Draw the holes
+        //Draw holes
         for (int i = 0; i< holeAngelsArr.length; i++) {
 
             //compute coordinates on the circle to place a hole
@@ -240,7 +240,8 @@ public class WaveView extends View {
     }
 
     /**
-     * Getter for AnimatorUpdateListener
+     * Getter for AnimatorUpdateListener.
+     * @return ValueAnimator.AnimatorUpdateListener.
      * */
     @NonNull
     private ValueAnimator.AnimatorUpdateListener getAnimUpdateListener() {
@@ -258,7 +259,8 @@ public class WaveView extends View {
     }
 
     /**
-     * Getter for AnimatorListener
+     * Getter for AnimatorListener.
+     * @return Animator.AnimatorListener.
      * */
     @NonNull
     private Animator.AnimatorListener getAnimListener() {
@@ -288,15 +290,15 @@ public class WaveView extends View {
 
     /**
      * This function take height, width and radius of the view and return coordinates
-     * that represent point on the circle
+     * that represent point on the circle.
      *
-     * @param radius The radius of the our circle
-     * @param mWidth The width of entire view
-     * @param mHeight The height of entire view
+     * @param radius The radius of the our circle.
+     * @param mWidth The width of entire view.
+     * @param mHeight The height of entire view.
      *
      * @return float 2-element array where result[0] is 'x' and result[1] is 'y'
      * that represent point on the circle,
-     * this coordinates uses to place a hole
+     * this coordinates uses to place a hole.
      * */
     private float[] getPointOnCircle(int mWidth, int mHeight, final float radius, int angel) {
         float[] result = new float[2];
@@ -309,8 +311,8 @@ public class WaveView extends View {
 
 
     /**
-    * Return Paint that uses to draw circle
-    * @return Paint that uses to draw circle
+    * Return Paint that uses to draw circle.
+    * @return Paint that uses to draw circle.
     * */
     private Paint getCirclePaint(){
        Paint paint =  new Paint();
@@ -321,8 +323,8 @@ public class WaveView extends View {
     }
 
     /**
-     * Return Paint that uses to draw hole in circle
-     * @return Paint that uses to draw hole in circle
+     * Return Paint that uses to draw hole in circle.
+     * @return Paint that uses to draw hole in circle.
      * */
     private Paint getHolePaint(){
 
@@ -351,8 +353,8 @@ public class WaveView extends View {
     }
 
     /**
-     * Setter for device screen width
-     * @param width is screen width
+     * Setter for device screen width.
+     * @param width is screen width.
      * */
     public void setDeviceScreenWidth(int width) {
         this.deviceScreenWidth = width;
@@ -388,7 +390,7 @@ public class WaveView extends View {
 
     /**
      * Return random number from 50 to 100 that represent hole size.
-     * @return random number from 50 to 100 that represent hole size
+     * @return random number from 50 to 100 that represent hole size.
      */
     private int getRandHoleSize(){
 

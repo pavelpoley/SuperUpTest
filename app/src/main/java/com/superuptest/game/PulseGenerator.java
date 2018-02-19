@@ -18,7 +18,7 @@ public class PulseGenerator {
     private static final String TAG = "PulseGenerator";
 
     /**
-     * Constant that define the interval time.
+     * Constant that define the interval time in milliseconds.
      * */
     private static final int INTERVAL = 3000;
 

@@ -19,7 +19,7 @@ import com.superuptest.game.SamplingGenerator;
 import com.superuptest.views.WaveView;
 
     /**
-    * This Activity holds all the logic the game.
+    * This Activity holds all the logic of the game.
     *
     * WaveView - represent a pulsing circle with holes.
     *
@@ -28,11 +28,14 @@ import com.superuptest.views.WaveView;
     * PulseGenerator - used to generate WaveView every X time (3 sec in our case).
     *
     * SamplingGenerator - generate fast sampling rate.
-    * Why i used it?
-    * Because onTouch(View v, MotionEvent event) not called when the user touch the scree
+    *
+    * */
+
+    /*
+    * Why i used SamplingGenerator?
+    * Because onTouch(View v, MotionEvent event) not called when the user touch the screen
     * and not move the finger, so i hold the last coordinates separately to check if
     * the WaveView reached the touched position.
-    *
     * */
 
 public class GameActivity extends AppCompatActivity implements
@@ -132,8 +135,8 @@ public class GameActivity extends AppCompatActivity implements
     }
 
     /**
-     * This method define if the user touched touch the border or the WaveView,
-     * it take the last coordinates and check the color.
+     * This method define if the user touched the border or the WaveView,
+     * it is take the last coordinates and check the color.
      * If the color is NOT white it is mean that the user touch the border or the WaveView.
      * */
     private void checkColor() {
@@ -184,12 +187,13 @@ public class GameActivity extends AppCompatActivity implements
      * Create new WaveView and add to layout.
      * */
     private void createWave(){
+        //create WaveView
         final WaveView wave = new WaveView(this);
         wave.setLayoutParams(getParams());
         wave.setDeviceScreenWidth(screenWidth);
 
+        //add the WaveView to layout
         mContainer.addView(wave);
-
         constraintSet.clone(mContainer);
         constraintSet.connect(wave.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
         constraintSet.connect(wave.getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
@@ -200,14 +204,15 @@ public class GameActivity extends AppCompatActivity implements
     }
 
     /**
-     * Return LayoutParams for the WaveView.
+     * Return LayoutParams for WaveView.
+     * @return FrameLayout.LayoutParams for WaveView.
      * */
     @NonNull
     private FrameLayout.LayoutParams getParams() {
             return new FrameLayout.LayoutParams(10,10);
     }
 
-        /**
+     /**
      * Remove callbacks and finish the activity, return back to MainActivity.
      * */
     private void gameOver(){
@@ -237,7 +242,7 @@ public class GameActivity extends AppCompatActivity implements
     }
 
     /**
-     * When onSample() called need to check the color.
+     * When onSample() called every moment.
      * */
     @Override
     public void onSample() {
